@@ -1,45 +1,43 @@
 package ar.edu.utn.frc.tup.p4.client;
 
-import ar.edu.utn.frc.tup.p4.models.ZebraStatus;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 
-public class ZebraClient implements AutoCloseable {
-    private final Socket socket;
-    private final BufferedWriter writer;
-    private final BufferedReader reader;
+public class ZebraClient {
+    private final String host;
+    private final int port;
 
-    public ZebraClient(String host, int port) throws IOException {
-        this.socket = new Socket(host, port);
-        this.writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "windows-1252"));
-        this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), "windows-1252"));
+    public ZebraClient(String host, int port) {
+        this.host = host;
+        this.port = port;
     }
 
-    public void sendZpl(String zpl) throws IOException {
-        writer.write(zpl);
-        writer.flush();
-    }
-
-    public ZebraStatus queryStatus() throws IOException {
-        writer.write("~HS\r\n");
-        writer.flush();
-
-        StringBuilder raw = new StringBuilder();
-        for (int i = 0; i < 3; i++) {
-            String line = reader.readLine();
-            if (line != null) raw.append(line).append("\n");
+    public void sendZpl(String zpl) {
+        try (Socket socket = new Socket(host, port);
+             OutputStream out = socket.getOutputStream()) {
+            out.write(zpl.getBytes());
+            out.flush();
+        } catch (Exception e) {
+            throw new RuntimeException("Error enviando ZPL a la impresora " + host + ":" + port, e);
         }
-
-        return ZebraStatus.parse(raw.toString());
     }
 
-    @Override
-    public void close() throws IOException {
-        socket.close();
+    public String queryStatus() {
+        try (Socket socket = new Socket(host, port);
+             OutputStream out = socket.getOutputStream();
+             InputStream in = socket.getInputStream()) {
+
+            // Enviar comando ~HS
+            out.write("~HS\n".getBytes());
+            out.flush();
+
+            byte[] buffer = new byte[1024];
+            int read = in.read(buffer);
+            return new String(buffer, 0, read);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error consultando estado de la impresora " + host + ":" + port, e);
+        }
     }
 }

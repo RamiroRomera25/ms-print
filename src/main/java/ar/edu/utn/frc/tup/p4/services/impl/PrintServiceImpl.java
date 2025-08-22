@@ -1,53 +1,75 @@
 package ar.edu.utn.frc.tup.p4.services.impl;
 
-import ar.edu.utn.frc.tup.p4.client.ZebraClient;
-import ar.edu.utn.frc.tup.p4.dtos.printer.PrintRequestDto;
-import ar.edu.utn.frc.tup.p4.dtos.printer.PrintResponseDto;
-import ar.edu.utn.frc.tup.p4.dtos.printer.PrinterStatusDto;
+import ar.edu.utn.frc.tup.p4.dtos.printer.PrinterDto;
+import ar.edu.utn.frc.tup.p4.dtos.printer.PrinterCreateRequestDto;
+import ar.edu.utn.frc.tup.p4.dtos.printer.PrinterUpdateRequestDto;
+import ar.edu.utn.frc.tup.p4.entities.Printer;
 import ar.edu.utn.frc.tup.p4.models.PrintersProperties;
-import ar.edu.utn.frc.tup.p4.models.ZebraStatus;
+import ar.edu.utn.frc.tup.p4.repositories.PrinterRepository;
 import ar.edu.utn.frc.tup.p4.services.PrintService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.io.OutputStream;
+import java.net.Socket;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class PrintServiceImpl implements PrintService {
 
-    private final PrintersProperties props;
+    private final PrinterRepository printerRepository;
 
-    public PrintResponseDto printLabel(PrintRequestDto request) {
-        try (ZebraClient client = new ZebraClient("192.168.1.50", 9100)) {
-            client.sendZpl(request.getZpl());
+    private static final Logger logger = LoggerFactory.getLogger(PrintServiceImpl.class);
 
-            ZebraStatus status = client.queryStatus();
-            PrintResponseDto response = new PrintResponseDto();
-            response.setSuccess(status.isReady());
-            response.setMessage(status.isReady() ? "Impresión enviada" : "Impresora no lista");
-            return response;
-
-        } catch (Exception e) {
-            PrintResponseDto response = new PrintResponseDto();
-            response.setSuccess(false);
-            response.setMessage("Error: " + e.getMessage());
-            return response;
-        }
+    public List<PrinterDto> getAll() {
+        return this.printerRepository.findAllByActiveIsTrue().stream()
+                .map(PrinterDto::new)
+                .toList();
     }
 
-    public PrinterStatusDto getPrinterStatus(String printerId) {
-        try (ZebraClient client = new ZebraClient("192.168.1.50", 9100)) {
-            ZebraStatus status = client.queryStatus();
-            PrinterStatusDto dto = new PrinterStatusDto();
-            dto.setReady(status.isReady());
-            dto.setLabelsRemaining(status.getLabelsRemaining());
-            dto.setRawStatus(status.getRawStatus());
-            return dto;
+    public PrinterDto getDtoById(Long id) {
+        return new PrinterDto(this.getById(id));
+    }
+
+    public Printer getById(Long id) {
+        return this.printerRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Printer not found with id: " + id));
+    }
+
+    public Printer getByName(String name) {
+        return this.printerRepository.findByName(name)
+                .orElseThrow(() -> new EntityNotFoundException("Printer not found with name: " + name));
+    }
+
+    public PrinterDto getDtoByName(String name) {
+        return new PrinterDto(this.getByName(name));
+    }
+
+    public PrinterDto create(PrinterCreateRequestDto printerRequest) {
+        Printer printerSaved = printerRepository.save(new Printer(printerRequest));
+        return new PrinterDto(printerSaved);
+    }
+
+    public PrinterDto update(PrinterUpdateRequestDto printerRequest) {
+        Printer printerSaved = printerRepository.save(new Printer(printerRequest));
+        return new PrinterDto(printerSaved);
+    }
+
+    public void printTo(String printerName, String zpl) {
+        Printer printer = this.getByName(printerName);
+
+        String host = printer.getHost();
+        int port = printer.getPort();
+
+        try (Socket socket = new Socket(host, port); OutputStream out = socket.getOutputStream()) {
+            out.write(zpl.getBytes());
+            out.flush();
         } catch (Exception e) {
-            PrinterStatusDto dto = new PrinterStatusDto();
-            dto.setReady(false);
-            dto.setLabelsRemaining(0);
-            dto.setRawStatus("Error: " + e.getMessage());
-            return dto;
+            throw new RuntimeException("Error enviando datos a la impresora " + printerName, e);
         }
     }
 }

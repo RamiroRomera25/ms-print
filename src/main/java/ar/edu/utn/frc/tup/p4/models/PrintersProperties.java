@@ -14,10 +14,10 @@ import java.util.List;
 @Builder
 @ConfigurationProperties(prefix = "zebra")
 public class PrintersProperties {
-    private Integer connectTimeoutMs;
-    private Integer readTimeoutMs;
-    private Integer pollIntervalMs;
-    private Integer confirmTimeoutM;
+    private Integer connectTimeout;
+    private Integer readTimeout;
+    private Integer pollInterval;
+    private Integer confirmTimeout;
     private String defaultCharset;
     private List<Printer> printers;
 }

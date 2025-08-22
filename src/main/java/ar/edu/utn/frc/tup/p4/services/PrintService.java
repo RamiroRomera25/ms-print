@@ -1,12 +1,21 @@
 package ar.edu.utn.frc.tup.p4.services;
 
-import ar.edu.utn.frc.tup.p4.dtos.printer.PrintRequestDto;
-import ar.edu.utn.frc.tup.p4.dtos.printer.PrintResponseDto;
-import ar.edu.utn.frc.tup.p4.dtos.printer.PrinterStatusDto;
+import ar.edu.utn.frc.tup.p4.dtos.printer.PrinterCreateRequestDto;
+import ar.edu.utn.frc.tup.p4.dtos.printer.PrinterDto;
+import ar.edu.utn.frc.tup.p4.dtos.printer.PrinterUpdateRequestDto;
+import ar.edu.utn.frc.tup.p4.entities.Printer;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public interface PrintService {
-    PrintResponseDto printLabel(PrintRequestDto request);
-    PrinterStatusDto getPrinterStatus(String printerId);
+    List<PrinterDto> getAll();
+    PrinterDto getDtoById(Long id);
+    Printer getById(Long id);
+    Printer getByName(String name);
+    PrinterDto getDtoByName(String name);
+    PrinterDto create(PrinterCreateRequestDto printerRequest);
+    PrinterDto update(PrinterUpdateRequestDto printerRequest);
+    void printTo(String printerName, String zpl);
 }

@@ -1,11 +1,7 @@
 package ar.edu.utn.frc.tup.p4.controllers;
 
-import ar.edu.utn.frc.tup.p4.dtos.printer.PrintRequestDto;
-import ar.edu.utn.frc.tup.p4.dtos.printer.PrintResponseDto;
-import ar.edu.utn.frc.tup.p4.dtos.printer.PrinterStatusDto;
 import ar.edu.utn.frc.tup.p4.services.PrintService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,15 +11,9 @@ public class PrintController {
 
     private final PrintService printService;
 
-    @PostMapping
-    public ResponseEntity<PrintResponseDto> print(@RequestBody PrintRequestDto request) {
-        PrintResponseDto response = printService.printLabel(request);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/status/{printerId}")
-    public ResponseEntity<PrinterStatusDto> status(@PathVariable String printerId) {
-        PrinterStatusDto status = printService.getPrinterStatus(printerId);
-        return ResponseEntity.ok(status);
+    @PostMapping("/{printerName}")
+    public String print(@PathVariable String printerName, @RequestBody String zpl) {
+        printService.printTo(printerName, zpl);
+        return "Trabajo enviado a la impresora " + printerName;
     }
 }
