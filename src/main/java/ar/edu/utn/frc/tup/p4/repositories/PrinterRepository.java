@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface PrinterRepository extends JpaRepository<Printer, Long> {
-    List<Printer> findAllByActiveIsTrue();
+    List<Printer> findAllByIsActiveIsTrue();
 }

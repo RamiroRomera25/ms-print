@@ -15,6 +15,4 @@ public interface PrintService {
     Printer getById(Long id);
     PrinterDto create(PrinterCreateRequestDto printerRequest);
     PrinterDto update(PrinterUpdateRequestDto printerRequest);
-    void printTo(Long printerId, String zpl);
-    String getStatus(Long printerId);
 }

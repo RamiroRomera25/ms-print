@@ -22,12 +22,10 @@ public class PrintServiceImpl implements PrintService {
 
     private final PrinterRepository printerRepository;
 
-    private final PrinterClientHandler factory;
-
     private static final Logger logger = LoggerFactory.getLogger(PrintServiceImpl.class);
 
     public List<PrinterDto> getAll() {
-        return this.printerRepository.findAllByActiveIsTrue().stream()
+        return this.printerRepository.findAllByIsActiveIsTrue().stream()
                 .map(PrinterDto::new)
                 .toList();
     }
@@ -49,22 +47,5 @@ public class PrintServiceImpl implements PrintService {
     public PrinterDto update(PrinterUpdateRequestDto printerRequest) {
         Printer printerSaved = printerRepository.save(new Printer(printerRequest));
         return new PrinterDto(printerSaved);
-    }
-
-
-    public void printTo(Long printerId, String zpl) {
-        Printer printer = printerRepository.findById(printerId)
-                .orElseThrow(() -> new RuntimeException("Impresora no encontrada: id=" + printerId));
-
-        PrinterClient client = factory.getHandler(printer.getLanguage());
-        client.sendZpl(zpl, printer);
-    }
-
-    public String getStatus(Long printerId) {
-        Printer printer = printerRepository.findById(printerId)
-                .orElseThrow(() -> new RuntimeException("Impresora no encontrada: id=" + printerId));
-
-        PrinterClient client = factory.getHandler(printer.getLanguage());
-        return client.queryStatus(printer);
     }
 }

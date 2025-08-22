@@ -1,6 +1,6 @@
 package ar.edu.utn.frc.tup.p4.controllers;
 
-import ar.edu.utn.frc.tup.p4.services.PrintService;
+import ar.edu.utn.frc.tup.p4.services.PrintCommandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,21 +11,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/printer-command")
 @RequiredArgsConstructor
 public class PrintCommandController {
 
-    private final PrintService printService;
+    private final PrintCommandService printCommandService;
 
     @PostMapping("/{printerId}/print")
     public ResponseEntity<String> print(@PathVariable Long printerId, @RequestBody String zpl) {
-        printService.printTo(printerId, zpl);
+        printCommandService.printTo(printerId, zpl);
         return ResponseEntity.ok("Trabajo enviado a la impresora con ID: " + printerId);
     }
 
     @GetMapping("/{printerId}/status")
     public ResponseEntity<String> getStatus(@PathVariable Long printerId) {
-        String status = printService.getStatus(printerId);
+        String status = printCommandService.getStatus(printerId);
         return ResponseEntity.ok(status);
     }
 }
