@@ -13,9 +13,8 @@ public interface PrintService {
     List<PrinterDto> getAll();
     PrinterDto getDtoById(Long id);
     Printer getById(Long id);
-    Printer getByName(String name);
-    PrinterDto getDtoByName(String name);
     PrinterDto create(PrinterCreateRequestDto printerRequest);
     PrinterDto update(PrinterUpdateRequestDto printerRequest);
-    void printTo(String printerName, String zpl);
+    void printTo(Long printerId, String zpl);
+    String getStatus(Long printerId);
 }
