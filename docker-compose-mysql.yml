@@ -21,7 +21,7 @@ services:
     container_name: generic
     build:
       context: .
-      dockerfile: Dockerfile-Distroless
+      dockerfile: Dockerfile
     environment:
       SPRING_PROFILES_ACTIVE: mysql
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/generic

@@ -3,7 +3,7 @@ services:
     container_name: generic
     build:
       context: .
-      dockerfile: Dockerfile-Distroless
+      dockerfile: Dockerfile
     environment:
       SPRING_PROFILES_ACTIVE: firebase
     ports:
