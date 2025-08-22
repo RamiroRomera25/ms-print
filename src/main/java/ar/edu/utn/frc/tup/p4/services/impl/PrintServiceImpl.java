@@ -1,21 +1,19 @@
 package ar.edu.utn.frc.tup.p4.services.impl;
 
-import ar.edu.utn.frc.tup.p4.client.ZebraClient;
+import ar.edu.utn.frc.tup.p4.client.printerClient.PrinterClient;
 import ar.edu.utn.frc.tup.p4.dtos.printer.PrinterDto;
 import ar.edu.utn.frc.tup.p4.dtos.printer.PrinterCreateRequestDto;
 import ar.edu.utn.frc.tup.p4.dtos.printer.PrinterUpdateRequestDto;
 import ar.edu.utn.frc.tup.p4.entities.Printer;
-import ar.edu.utn.frc.tup.p4.models.PrintersProperties;
 import ar.edu.utn.frc.tup.p4.repositories.PrinterRepository;
 import ar.edu.utn.frc.tup.p4.services.PrintService;
+import ar.edu.utn.frc.tup.p4.services.languageFactory.PrinterClientHandler;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.OutputStream;
-import java.net.Socket;
 import java.util.List;
 
 @Service
@@ -24,7 +22,7 @@ public class PrintServiceImpl implements PrintService {
 
     private final PrinterRepository printerRepository;
 
-    private final ZebraClientFactoryHandler factory;
+    private final PrinterClientHandler factory;
 
     private static final Logger logger = LoggerFactory.getLogger(PrintServiceImpl.class);
 
@@ -58,15 +56,15 @@ public class PrintServiceImpl implements PrintService {
         Printer printer = printerRepository.findById(printerId)
                 .orElseThrow(() -> new RuntimeException("Impresora no encontrada: id=" + printerId));
 
-        ZebraClient client = factory.createClient(printer);
-        client.sendZpl(zpl);
+        PrinterClient client = factory.getHandler(printer.getLanguage());
+        client.sendZpl(zpl, printer);
     }
 
     public String getStatus(Long printerId) {
         Printer printer = printerRepository.findById(printerId)
                 .orElseThrow(() -> new RuntimeException("Impresora no encontrada: id=" + printerId));
 
-        ZebraClient client = factory.createClient(printer);
-        return client.queryStatus();
+        PrinterClient client = factory.getHandler(printer.getLanguage());
+        return client.queryStatus(printer);
     }
 }

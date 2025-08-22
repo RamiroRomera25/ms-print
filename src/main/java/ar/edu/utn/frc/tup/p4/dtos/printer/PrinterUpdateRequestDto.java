@@ -1,5 +1,6 @@
 package ar.edu.utn.frc.tup.p4.dtos.printer;
 
+import ar.edu.utn.frc.tup.p4.enums.PrinterLanguage;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -29,4 +30,6 @@ public class PrinterUpdateRequestDto {
     @NotNull
     @PositiveOrZero
     private int port;
+
+    private PrinterLanguage language;
 }

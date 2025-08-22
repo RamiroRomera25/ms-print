@@ -3,6 +3,7 @@ package ar.edu.utn.frc.tup.p4.entities;
 
 import ar.edu.utn.frc.tup.p4.dtos.printer.PrinterCreateRequestDto;
 import ar.edu.utn.frc.tup.p4.dtos.printer.PrinterUpdateRequestDto;
+import ar.edu.utn.frc.tup.p4.enums.PrinterLanguage;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,12 +28,14 @@ public class Printer {
     private String name;
     private String host;
     private int port;
+    private PrinterLanguage language;
     private boolean isActive;
 
     public Printer(PrinterCreateRequestDto printerRequest) {
         this.name = printerRequest.getName();
         this.host = printerRequest.getHost();
         this.port = printerRequest.getPort();
+        this.language = printerRequest.getLanguage();
         this.isActive = true;
     }
 
@@ -41,6 +44,7 @@ public class Printer {
         this.name = printerRequest.getName();
         this.host = printerRequest.getHost();
         this.port = printerRequest.getPort();
+        this.language = printerRequest.getLanguage();
         this.isActive = true;
     }
 }
